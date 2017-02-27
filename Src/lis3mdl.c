@@ -43,7 +43,7 @@ const static uint16_t _LIS3MDLGAUSS_TO_SCALE[] = { 4, 8, 12, 16 };
  * @param rxdata
  * @return
  */
-HAL_StatusTypeDef SPI_SendRecieveByte(uint8_t txdata, uint8_t* rxdata) // This function is a standard old SPI function that writes and reads data
+HAL_StatusTypeDef SPI_SendRecieveByte(LIS3MDL* lis3mdl,uint8_t txdata, uint8_t* rxdata) // This function is a standard old SPI function that writes and reads data
 {
 	HAL_StatusTypeDef status;
 //	uint8_t rxdata;
@@ -72,7 +72,7 @@ void LIS3MDL_setMinMax(LIS3MDL* lis3mdl, uint8_t axis, int16_t min, int16_t max)
 
 HAL_StatusTypeDef LIS3MDL_reset(LIS3MDL* lis3mdl) {
 	HAL_StatusTypeDef status;
-	status = _LIS3MDL_writeRegister(_LIS3MDL_REG_CTL_2,
+	status = _LIS3MDL_writeRegister(lis3mdl,_LIS3MDL_REG_CTL_2,
 	_LIS3MDL_REG_CTL_2_RESET, _LIS3MDL_REG_CTL_2_RESET);
 	if (status != HAL_OK) {
 		return status;
@@ -80,33 +80,33 @@ HAL_StatusTypeDef LIS3MDL_reset(LIS3MDL* lis3mdl) {
 	return _LIS3MDL_init(lis3mdl);
 }
 
-HAL_StatusTypeDef LIS3MDL_enableTemperature() {
-	return _LIS3MDL_writeRegister(_LIS3MDL_REG_CTL_1,
+HAL_StatusTypeDef LIS3MDL_enableTemperature(LIS3MDL* lis3mdl) {
+	return _LIS3MDL_writeRegister(lis3mdl,_LIS3MDL_REG_CTL_1,
 	_LIS3MDL_REG_CTL_1_TEMP_EN, _LIS3MDL_REG_CTL_1_TEMP_EN);
 }
 
-HAL_StatusTypeDef LIS3MDL_setPerformance(uint8_t performance) {
+HAL_StatusTypeDef LIS3MDL_setPerformance(LIS3MDL* lis3mdl,uint8_t performance) {
 	HAL_StatusTypeDef status;
-	status = _LIS3MDL_writeRegister(_LIS3MDL_REG_CTL_1, performance << 5,
+	status = _LIS3MDL_writeRegister(lis3mdl,_LIS3MDL_REG_CTL_1, performance << 5,
 			0b01100000);
 	if (status != HAL_OK) {
 		return status;
 	}
-	return _LIS3MDL_writeRegister(_LIS3MDL_REG_CTL_4, performance << 2,
+	return _LIS3MDL_writeRegister(lis3mdl,_LIS3MDL_REG_CTL_4, performance << 2,
 			0b00001100);
 }
 
-HAL_StatusTypeDef LIS3MDL_setDateRate( uint8_t dataRate) {
-	return _LIS3MDL_writeRegister(_LIS3MDL_REG_CTL_1, dataRate << 2, 0b00011100);
+HAL_StatusTypeDef LIS3MDL_setDateRate(LIS3MDL* lis3mdl,uint8_t dataRate) {
+	return _LIS3MDL_writeRegister(lis3mdl,_LIS3MDL_REG_CTL_1, dataRate << 2, 0b00011100);
 }
 
-HAL_StatusTypeDef LIS3MDL_setMode(uint8_t mode) {
-	return _LIS3MDL_writeRegister(_LIS3MDL_REG_CTL_3, mode << 0, 0b00000011);
+HAL_StatusTypeDef LIS3MDL_setMode(LIS3MDL* lis3mdl,uint8_t mode) {
+	return _LIS3MDL_writeRegister(lis3mdl,_LIS3MDL_REG_CTL_3, mode << 0, 0b00000011);
 }
 
 HAL_StatusTypeDef LIS3MDL_setScale(LIS3MDL* lis3mdl, uint8_t scale) {
 	HAL_StatusTypeDef status;
-	status = _LIS3MDL_writeRegister(_LIS3MDL_REG_CTL_2, scale << 5, 0b01100000);
+	status = _LIS3MDL_writeRegister(lis3mdl,_LIS3MDL_REG_CTL_2, scale << 5, 0b01100000);
 	if (status != HAL_OK) {
 		return status;
 	}
@@ -136,7 +136,7 @@ HAL_StatusTypeDef LIS3MDL_readAxis(LIS3MDL* lis3mdl, uint8_t axis,
 	default:
 		return 0;
 	}
-	status = _LIS3MDL_readRegister_int16(lowAddr, highAddr, value);
+	status = _LIS3MDL_readRegister_int16(lis3mdl,lowAddr, highAddr, value);
 	if (status == HAL_OK) {
 #ifdef LIS3MDL_DEBUG
 		char axisCh = (axis == LIS3MDL_AXIS_X) ? 'x' : (axis == LIS3MDL_AXIS_Y ? 'y' : 'z');
@@ -148,20 +148,20 @@ HAL_StatusTypeDef LIS3MDL_readAxis(LIS3MDL* lis3mdl, uint8_t axis,
 	return status;
 }
 
-HAL_StatusTypeDef LIS3MDL_readTemperature(int16_t* value) {
-	return _LIS3MDL_readRegister_int16(_LIS3MDL_REG_OUT_TEMP_L,
+HAL_StatusTypeDef LIS3MDL_readTemperature(LIS3MDL* lis3mdl,int16_t* value) {
+	return _LIS3MDL_readRegister_int16(lis3mdl,_LIS3MDL_REG_OUT_TEMP_L,
 	_LIS3MDL_REG_OUT_TEMP_H, value);
 }
 
-HAL_StatusTypeDef LIS3MDL_readStatus(uint8_t *value) {
-	return _LIS3MDL_readRegister(_LIS3MDL_REG_STATUS, value);
+HAL_StatusTypeDef LIS3MDL_readStatus(LIS3MDL* lis3mdl,uint8_t *value) {
+	return _LIS3MDL_readRegister(lis3mdl,_LIS3MDL_REG_STATUS, value);
 }
 
 HAL_StatusTypeDef _LIS3MDL_init(LIS3MDL* lis3mdl) {
 	uint8_t deviceId;
 	HAL_StatusTypeDef status;
 
-	status = _LIS3MDL_readRegister(_LIS3MDL_REG_WHO_AM_I, &deviceId);
+	status = _LIS3MDL_readRegister(lis3mdl,_LIS3MDL_REG_WHO_AM_I, &deviceId);
 
 	if (deviceId != LIS3MDL_DEVICE_ID) {
 		LIS3MDL_DEBUG_OUT("invalid device id. expected 0x%02x, found: 0x%02x\n", LIS3MDL_DEVICE_ID, deviceId);
@@ -170,42 +170,42 @@ HAL_StatusTypeDef _LIS3MDL_init(LIS3MDL* lis3mdl) {
 		LIS3MDL_DEBUG_OUT("Connected to Lis3MDL, returned 0x%x",deviceId);
 	}
 	uint8_t reg2;
-	status = _LIS3MDL_readRegister(_LIS3MDL_REG_CTL_2, &reg2);
+	status = _LIS3MDL_readRegister(lis3mdl,_LIS3MDL_REG_CTL_2, &reg2);
 
 	lis3mdl->scale = _LIS3MDLGAUSS_TO_SCALE[(reg2 >> 5) & 0b11];
 	printf("Scale Was Set as %d\n",lis3mdl->scale);
 	return status;
 }
 
-HAL_StatusTypeDef _LIS3MDL_readRegister_int16(uint8_t* lowAddr, uint8_t* highAddr,
+HAL_StatusTypeDef _LIS3MDL_readRegister_int16(LIS3MDL* lis3mdl,uint8_t* lowAddr, uint8_t* highAddr,
 		int16_t* value) {
 
 	HAL_StatusTypeDef status;
 	uint8_t low, high;
 
-	status = _LIS3MDL_readRegister(lowAddr, &low);
+	status = _LIS3MDL_readRegister(lis3mdl,lowAddr, &low);
 	if (status != HAL_OK)
 		return status;
-	status = _LIS3MDL_readRegister(highAddr, &high);
+	status = _LIS3MDL_readRegister(lis3mdl,highAddr, &high);
 	if (status != HAL_OK)
 		return status;
 	*value = (((uint16_t) high) << 8) | (uint16_t) low;
 	return status;
 }
 
-HAL_StatusTypeDef _LIS3MDL_readRegister(uint8_t addr, uint8_t* value) {
+HAL_StatusTypeDef _LIS3MDL_readRegister(LIS3MDL* lis3mdl,uint8_t addr, uint8_t* value) {
 	HAL_StatusTypeDef status;
 	uint8_t val;
 	LIS3MDL_CS_LOW
 	; //CS low
-	SPI_SendRecieveByte(addr | 0x80, value);
-	status = SPI_SendRecieveByte(LIS3MDL_DUMMY, value);
+	SPI_SendRecieveByte(lis3mdl,addr | 0x80, value);
+	status = SPI_SendRecieveByte(lis3mdl,LIS3MDL_DUMMY, value);
 	LIS3MDL_CS_HIGH
 	; //CS high
 	return status;
 }
 
-HAL_StatusTypeDef _LIS3MDL_writeRegister(uint8_t addr, uint8_t val,
+HAL_StatusTypeDef _LIS3MDL_writeRegister(LIS3MDL* lis3mdl,uint8_t addr, uint8_t val,
 		uint8_t mask) {
 	HAL_StatusTypeDef status;
 
@@ -215,7 +215,7 @@ HAL_StatusTypeDef _LIS3MDL_writeRegister(uint8_t addr, uint8_t val,
 		valuetoWrite = val;
 	} else {
 		uint8_t currentValue;
-		status = _LIS3MDL_readRegister(addr, &currentValue);
+		status = _LIS3MDL_readRegister(lis3mdl,addr, &currentValue);
 		if (status != HAL_OK) {
 			LIS3MDL_DEBUG_OUT("writeRegister: rx current error reg 0x%02x status %d\n", addr, status);
 		}
@@ -223,10 +223,10 @@ HAL_StatusTypeDef _LIS3MDL_writeRegister(uint8_t addr, uint8_t val,
 	}
 	LIS3MDL_CS_LOW
 	; //CS low
-	status = SPI_SendRecieveByte(addr, &x); //Send address
+	status = SPI_SendRecieveByte(lis3mdl,addr, &x); //Send address
 	if (status != HAL_OK)
 		return status;
-	status = SPI_SendRecieveByte(valuetoWrite, &x); //Send data
+	status = SPI_SendRecieveByte(lis3mdl,valuetoWrite, &x); //Send data
 	if (status != HAL_OK)
 		return status;
 	LIS3MDL_CS_HIGH

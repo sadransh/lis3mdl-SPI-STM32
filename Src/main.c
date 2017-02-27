@@ -101,29 +101,21 @@ int main(void) {
 	uint8_t res = 0x00;
 	LIS3MDL this;
 
-//	LIS3MDL_CS_LOW
-//		; //CS low
-//	SPI_SendRecieveByte1(0x8F);
-//	res = SPI_SendRecieveByte1(0x00);
-//		LIS3MDL_CS_HIGH
-//		; //CS high
-//
-//		printf("%d\n",res);
 	while (HAL_OK != LIS3MDL_setup(&this, &hspi3)) {
 		printf("cant init LIS3MDL\r\n");
 		HAL_Delay(500);
 	}
 	printf("Connected to LIS3MDL...\r\n");
 
-	(LIS3MDL_readStatus(&res) == 0) ?
+	(LIS3MDL_readStatus(&this,&res) == 0) ?
 			printf("LIS3MDL Status :  %d\r\n", res) :
 			printf("failed to get status\n");
 
-	status = LIS3MDL_enableTemperature();
+	status = LIS3MDL_enableTemperature(&this);
 
 	//(LIS3MDL_readTemperature(&res) ==0) ? printf("LIS3MDL temp : %d\r\n",res) : printf("failed to get status\n") ;
-	LIS3MDL_setPerformance(LIS3MDL_PERFORMANCE_ULTRA_HIGH);
-	LIS3MDL_setMode(LIS3MDL_MODE_CONTINUOUS);
+	LIS3MDL_setPerformance(&this,LIS3MDL_PERFORMANCE_ULTRA_HIGH);
+	LIS3MDL_setMode(&this,LIS3MDL_MODE_CONTINUOUS);
 	LIS3MDL_setScale(&this, LIS3MDL_SCALE_16_GAUSS);
 	printf("end\n");
 	int16_t val[3] = { 0 };
@@ -136,7 +128,7 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-		LIS3MDL_readTemperature(&res);
+		LIS3MDL_readTemperature(&this,&res);
 		LIS3MDL_readAxis(&this, 0, &val[0]);
 		LIS3MDL_readAxis(&this, 1, &val[1]);
 		LIS3MDL_readAxis(&this, 2, &val[2]);

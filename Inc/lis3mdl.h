@@ -63,22 +63,22 @@ typedef struct {
   int16_t max[3];
 } LIS3MDL;
 
-HAL_StatusTypeDef _LIS3MDL_readRegister(uint8_t addr, uint8_t* value);
-HAL_StatusTypeDef _LIS3MDL_writeRegister(uint8_t addr, uint8_t val,uint8_t mask);
-HAL_StatusTypeDef SPI_SendRecieveByte(uint8_t txdata, uint8_t *rxdata); // This function is a standard old SPI function that writes and reads data
+HAL_StatusTypeDef _LIS3MDL_readRegister(LIS3MDL* lis3mdl,uint8_t addr, uint8_t* value);
+HAL_StatusTypeDef _LIS3MDL_writeRegister(LIS3MDL* lis3mdl,uint8_t addr, uint8_t val,uint8_t mask);
+HAL_StatusTypeDef SPI_SendRecieveByte(LIS3MDL* lis3mdl,uint8_t txdata, uint8_t *rxdata); // This function is a standard old SPI function that writes and reads data
 HAL_StatusTypeDef LIS3MDL_setup(LIS3MDL* lis3mdl, SPI_HandleTypeDef* spi);
 void LIS3MDL_clearMinMax(LIS3MDL* lis3mdl);
 void LIS3MDL_setMinMax(LIS3MDL* lis3mdl, uint8_t axis, int16_t min, int16_t max);
 HAL_StatusTypeDef LIS3MDL_reset(LIS3MDL* lis3mdl);
-HAL_StatusTypeDef LIS3MDL_enableTemperature();
-HAL_StatusTypeDef LIS3MDL_setPerformance(uint8_t performance);
-HAL_StatusTypeDef LIS3MDL_setDateRate( uint8_t dataRate);
-HAL_StatusTypeDef LIS3MDL_setMode( uint8_t mode);
+HAL_StatusTypeDef LIS3MDL_enableTemperature(LIS3MDL* lis3mdl);
+HAL_StatusTypeDef LIS3MDL_setPerformance(LIS3MDL* lis3mdl,uint8_t performance);
+HAL_StatusTypeDef LIS3MDL_setDateRate(LIS3MDL* lis3mdl,uint8_t dataRate);
+HAL_StatusTypeDef LIS3MDL_setMode(LIS3MDL* lis3mdl,uint8_t mode);
 HAL_StatusTypeDef LIS3MDL_setScale(LIS3MDL* lis3mdl, uint8_t scale);
 HAL_StatusTypeDef LIS3MDL_readAxis(LIS3MDL* lis3mdl, uint8_t axis,int16_t* value);
-HAL_StatusTypeDef LIS3MDL_readTemperature( int16_t* value);
-HAL_StatusTypeDef LIS3MDL_readStatus(uint8_t *value);
+HAL_StatusTypeDef LIS3MDL_readTemperature(LIS3MDL* lis3mdl,int16_t* value);
+HAL_StatusTypeDef LIS3MDL_readStatus(LIS3MDL* lis3mdl,uint8_t *value);
 HAL_StatusTypeDef _LIS3MDL_init(LIS3MDL* lis3mdl);
-HAL_StatusTypeDef _LIS3MDL_readRegister_int16(uint8_t* lowAddr, uint8_t* highAddr,
+HAL_StatusTypeDef _LIS3MDL_readRegister_int16(LIS3MDL* lis3mdl,uint8_t* lowAddr, uint8_t* highAddr,
 		int16_t* value);
 #endif
