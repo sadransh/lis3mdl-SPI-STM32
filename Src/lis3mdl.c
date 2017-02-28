@@ -52,8 +52,10 @@ HAL_StatusTypeDef SPI_SendRecieveByte(LIS3MDL* lis3mdl,uint8_t txdata, uint8_t* 
 	return status;
 }
 
-HAL_StatusTypeDef LIS3MDL_setup(LIS3MDL* lis3mdl, SPI_HandleTypeDef* spi) {
+HAL_StatusTypeDef LIS3MDL_setup(LIS3MDL* lis3mdl, SPI_HandleTypeDef* spi,GPIO_TypeDef* gpio,uint16_t _pin) {
 	lis3mdl->spi = spi;
+	lis3mdl->port = gpio;
+	lis3mdl->pin = _pin;
 	LIS3MDL_clearMinMax(lis3mdl);
 	return _LIS3MDL_init(lis3mdl);
 }
@@ -196,11 +198,11 @@ HAL_StatusTypeDef _LIS3MDL_readRegister_int16(LIS3MDL* lis3mdl,uint8_t* lowAddr,
 HAL_StatusTypeDef _LIS3MDL_readRegister(LIS3MDL* lis3mdl,uint8_t addr, uint8_t* value) {
 	HAL_StatusTypeDef status;
 	uint8_t val;
-	LIS3MDL_CS_LOW
+	LIS3MDL_CS_LOW(lis3mdl->port,lis3mdl->pin)
 	; //CS low
 	SPI_SendRecieveByte(lis3mdl,addr | 0x80, value);
 	status = SPI_SendRecieveByte(lis3mdl,LIS3MDL_DUMMY, value);
-	LIS3MDL_CS_HIGH
+	LIS3MDL_CS_HIGH(lis3mdl->port,lis3mdl->pin)
 	; //CS high
 	return status;
 }
@@ -221,7 +223,7 @@ HAL_StatusTypeDef _LIS3MDL_writeRegister(LIS3MDL* lis3mdl,uint8_t addr, uint8_t 
 		}
 		valuetoWrite = (currentValue & ~mask) | (val & mask);
 	}
-	LIS3MDL_CS_LOW
+	LIS3MDL_CS_LOW(lis3mdl->port,lis3mdl->pin)
 	; //CS low
 	status = SPI_SendRecieveByte(lis3mdl,addr, &x); //Send address
 	if (status != HAL_OK)
@@ -229,7 +231,7 @@ HAL_StatusTypeDef _LIS3MDL_writeRegister(LIS3MDL* lis3mdl,uint8_t addr, uint8_t 
 	status = SPI_SendRecieveByte(lis3mdl,valuetoWrite, &x); //Send data
 	if (status != HAL_OK)
 		return status;
-	LIS3MDL_CS_HIGH
+	LIS3MDL_CS_HIGH(lis3mdl->port,lis3mdl->pin)
 	; //CS high
 //	status = _LIS3MDL_readRegister(addr, &x);
 	return status;
