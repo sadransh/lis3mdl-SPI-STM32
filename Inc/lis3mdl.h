@@ -1,4 +1,3 @@
-
 #ifndef _LIS3MDL_H_
 #define _LIS3MDL_H_
 
@@ -48,39 +47,43 @@
 #define LIS3MDL_DUMMY			   0x00
 #define LIS3MDL_DEVICE_ID          0b00111101
 
-
 #define LIS3MDL_CSN_GPIO     			SPI3CS8_GPIO_Port			// You need to modify this according to your board connection
 #define LIS3MDL_CSN_PIN      			SPI3CS8_Pin		// You need to modify this according to your board connection
 #define LIS3MDL_CS_LOW(port,pin)					HAL_GPIO_WritePin(port,pin,0); //Select sensor
 #define LIS3MDL_CS_HIGH(port,pin)					HAL_GPIO_WritePin(port,pin,1); // deSelect sensor
 
-
-
 typedef struct {
-  SPI_HandleTypeDef* spi;
-  GPIO_TypeDef* port;
-  uint16_t pin;
-  uint16_t scale;
-  int16_t min[3];
-  int16_t max[3];
+	SPI_HandleTypeDef* spi;
+	GPIO_TypeDef* port;
+	uint16_t pin;
+	uint16_t scale;
+	int16_t min[3];
+	int16_t max[3];
 } LIS3MDL;
 
-HAL_StatusTypeDef _LIS3MDL_readRegister(LIS3MDL* lis3mdl,uint8_t addr, uint8_t* value);
-HAL_StatusTypeDef _LIS3MDL_writeRegister(LIS3MDL* lis3mdl,uint8_t addr, uint8_t val,uint8_t mask);
-HAL_StatusTypeDef SPI_SendRecieveByte(LIS3MDL* lis3mdl,uint8_t txdata, uint8_t *rxdata); // This function is a standard old SPI function that writes and reads data
-HAL_StatusTypeDef LIS3MDL_setup(LIS3MDL* lis3mdl, SPI_HandleTypeDef* spi,GPIO_TypeDef* gpio,uint16_t _pin);
+
+
+HAL_StatusTypeDef _LIS3MDL_readRegister(LIS3MDL* lis3mdl, uint8_t addr,
+		uint8_t* value);
+HAL_StatusTypeDef _LIS3MDL_writeRegister(LIS3MDL* lis3mdl, uint8_t addr,
+		uint8_t val, uint8_t mask);
+HAL_StatusTypeDef SPI_SendRecieveByte(LIS3MDL* lis3mdl, uint8_t txdata,
+		uint8_t *rxdata); // This function is a standard old SPI function that writes and reads data
+HAL_StatusTypeDef LIS3MDL_setup(LIS3MDL* lis3mdl, SPI_HandleTypeDef* spi,
+		GPIO_TypeDef* gpio, uint16_t _pin);
 void LIS3MDL_clearMinMax(LIS3MDL* lis3mdl);
 void LIS3MDL_setMinMax(LIS3MDL* lis3mdl, uint8_t axis, int16_t min, int16_t max);
 HAL_StatusTypeDef LIS3MDL_reset(LIS3MDL* lis3mdl);
 HAL_StatusTypeDef LIS3MDL_enableTemperature(LIS3MDL* lis3mdl);
-HAL_StatusTypeDef LIS3MDL_setPerformance(LIS3MDL* lis3mdl,uint8_t performance);
-HAL_StatusTypeDef LIS3MDL_setDateRate(LIS3MDL* lis3mdl,uint8_t dataRate);
-HAL_StatusTypeDef LIS3MDL_setMode(LIS3MDL* lis3mdl,uint8_t mode);
+HAL_StatusTypeDef LIS3MDL_setPerformance(LIS3MDL* lis3mdl, uint8_t performance);
+HAL_StatusTypeDef LIS3MDL_setDateRate(LIS3MDL* lis3mdl, uint8_t dataRate);
+HAL_StatusTypeDef LIS3MDL_setMode(LIS3MDL* lis3mdl, uint8_t mode);
 HAL_StatusTypeDef LIS3MDL_setScale(LIS3MDL* lis3mdl, uint8_t scale);
-HAL_StatusTypeDef LIS3MDL_readAxis(LIS3MDL* lis3mdl, uint8_t axis,int16_t* value);
-HAL_StatusTypeDef LIS3MDL_readTemperature(LIS3MDL* lis3mdl,int16_t* value);
-HAL_StatusTypeDef LIS3MDL_readStatus(LIS3MDL* lis3mdl,uint8_t *value);
-HAL_StatusTypeDef _LIS3MDL_init(LIS3MDL* lis3mdl);
-HAL_StatusTypeDef _LIS3MDL_readRegister_int16(LIS3MDL* lis3mdl,uint8_t* lowAddr, uint8_t* highAddr,
+HAL_StatusTypeDef LIS3MDL_readAxis(LIS3MDL* lis3mdl, uint8_t axis,
 		int16_t* value);
+HAL_StatusTypeDef LIS3MDL_readTemperature(LIS3MDL* lis3mdl, int16_t* value);
+HAL_StatusTypeDef LIS3MDL_readStatus(LIS3MDL* lis3mdl, uint8_t *value);
+HAL_StatusTypeDef _LIS3MDL_init(LIS3MDL* lis3mdl);
+HAL_StatusTypeDef _LIS3MDL_readRegister_int16(LIS3MDL* lis3mdl,
+		uint8_t* lowAddr, uint8_t* highAddr, int16_t* value);
 #endif

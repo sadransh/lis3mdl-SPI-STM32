@@ -67,7 +67,9 @@ void Error_Handler(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-
+HAL_StatusTypeDef LIS3MDL_ConnectAndConfig(LIS3MDL* Sensors,
+		SPI_HandleTypeDef* spi, GPIO_TypeDef* gpio, uint16_t _pin,
+		uint8_t performance, uint8_t mode, uint8_t scale, int8_t enableTemp);
 int _write(int fd, char *ptr, int len) {
 	CDC_Transmit_FS((uint8_t*) ptr, len);
 	return len;
@@ -96,29 +98,16 @@ int main(void) {
 	MX_USB_DEVICE_Init();
 
 	/* USER CODE BEGIN 2 */
-	printf("sadra is here\n");
+	printf("sadra is here\r\n");
 	HAL_StatusTypeDef status = HAL_BUSY;
 	uint8_t res = 0x00;
 //	LIS3MDL this;
-	LIS3MDL Sensor[10];
+	LIS3MDL Sensor[NumOfSensors];
+	LIS3MDL_ConnectAndConfig(&Sensor[0],&hspi3,SPI3CS8_GPIO_Port,SPI3CS8_Pin,LIS3MDL_PERFORMANCE_ULTRA_HIGH,LIS3MDL_MODE_CONTINUOUS,LIS3MDL_SCALE_16_GAUSS,1);;
+//	(LIS3MDL_readStatus(&Sensor[0], &res) == 0) ?
+//			printf("LIS3MDL Status :  %d\r\n", res) :
+//			printf("failed to get status\r\n");
 
-	while (HAL_OK != LIS3MDL_setup(&Sensor[0], &hspi3,SPI3CS8_GPIO_Port,SPI3CS8_Pin)) {
-		printf("cant init LIS3MDL\r\n");
-		HAL_Delay(500);
-	}
-	printf("Connected to LIS3MDL...\r\n");
-
-	(LIS3MDL_readStatus(&Sensor[0],&res) == 0) ?
-			printf("LIS3MDL Status :  %d\r\n", res) :
-			printf("failed to get status\n");
-
-	status = LIS3MDL_enableTemperature(&Sensor[0]);
-
-	//(LIS3MDL_readTemperature(&res) ==0) ? printf("LIS3MDL temp : %d\r\n",res) : printf("failed to get status\n") ;
-	LIS3MDL_setPerformance(&Sensor[0],LIS3MDL_PERFORMANCE_ULTRA_HIGH);
-	LIS3MDL_setMode(&Sensor[0],LIS3MDL_MODE_CONTINUOUS);
-	LIS3MDL_setScale(&Sensor[0], LIS3MDL_SCALE_16_GAUSS);
-	printf("end\n");
 	int16_t val[3] = { 0 };
 
 	/* USER CODE END 2 */
@@ -129,7 +118,7 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-		LIS3MDL_readTemperature(&Sensor[0],&res);
+		LIS3MDL_readTemperature(&Sensor[0], &res);
 		LIS3MDL_readAxis(&Sensor[0], 0, &val[0]);
 		LIS3MDL_readAxis(&Sensor[0], 1, &val[1]);
 		LIS3MDL_readAxis(&Sensor[0], 2, &val[2]);
@@ -195,7 +184,28 @@ void SystemClock_Config(void) {
 }
 
 /* USER CODE BEGIN 4 */
+HAL_StatusTypeDef LIS3MDL_ConnectAndConfig(LIS3MDL* Sensors,
+		SPI_HandleTypeDef* spi, GPIO_TypeDef* gpio, uint16_t _pin,
+		uint8_t performance, uint8_t mode, uint8_t scale, int8_t enableTemp) {
+	HAL_StatusTypeDef status = HAL_ERROR;
+	while (HAL_OK
+			!= LIS3MDL_setup(&Sensors[0], &hspi3, SPI3CS8_GPIO_Port,
+					SPI3CS8_Pin)) {
+		printf("can't init LIS3MDL\r\n");
+		HAL_Delay(500);
+	}
+	printf("Connected to LIS3MDL...\r\n");
+	if (enableTemp)
+		status = LIS3MDL_enableTemperature(&Sensors[0]);
+//	(status == HAL_ERROR) ? return HAL_ERROR :status = HAL_ERROR ;
+	//(LIS3MDL_readTemperature(&res) ==0) ? printf("LIS3MDL temp : %d\r\n",res) : printf("failed to get status\n") ;
+	status = LIS3MDL_setPerformance(&Sensors[0],
+			LIS3MDL_PERFORMANCE_ULTRA_HIGH);
 
+	status = LIS3MDL_setMode(&Sensors[0], LIS3MDL_MODE_CONTINUOUS);
+	status = LIS3MDL_setScale(&Sensors[0], LIS3MDL_SCALE_16_GAUSS);
+	return HAL_OK;
+}
 /* USER CODE END 4 */
 
 /**
