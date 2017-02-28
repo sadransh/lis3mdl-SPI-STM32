@@ -46,9 +46,9 @@ const static uint16_t _LIS3MDLGAUSS_TO_SCALE[] = { 4, 8, 12, 16 };
 HAL_StatusTypeDef SPI_SendRecieveByte(LIS3MDL* lis3mdl,uint8_t txdata, uint8_t* rxdata) // This function is a standard old SPI function that writes and reads data
 {
 	HAL_StatusTypeDef status;
-//	uint8_t rxdata;
-	status = HAL_SPI_TransmitReceive(&hspi3, &(txdata), rxdata, 1, 100); // Send One Byte
-	//final = rxdata;
+
+	status = HAL_SPI_TransmitReceive(lis3mdl->spi, &(txdata), rxdata, 1, 100); // Send One Byte
+
 	return status;
 }
 
