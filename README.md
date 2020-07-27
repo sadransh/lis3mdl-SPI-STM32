@@ -1,6 +1,6 @@
-LIS3MDL SPI Driver for STM32 microcontrollers.
+# LIS3MDL SPI Driver for STM32 microcontrollers.
 
-# Usage 
+#### Usage 
 --------
 just add .c and .h file to Src Inc of your project. 
 Then configure the following parts based on your code. 
@@ -10,7 +10,7 @@ Then configure the following parts based on your code.
 
 * (optional) change SPI_SendRecieveByte if you are using another send/rec mechanism
 
-# Acknowledgement 
+###### Acknowledgement 
 -------
 
 This library is inspired by another driver, which I couldn't find at the of pushing.
